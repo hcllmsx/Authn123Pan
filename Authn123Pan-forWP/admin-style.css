@@ -1,0 +1,27 @@
+/* 菜单图标基础样式 */
+#adminmenu .toplevel_page_authn123pan .wp-menu-image {
+    background-repeat: no-repeat !important;
+    background-position: center center !important;
+    background-size: 20px auto !important;
+}
+
+#adminmenu .toplevel_page_authn123pan .wp-menu-image:before {
+    content: "";
+}
+
+/* 密钥输入框样式 */
+.authn123pan-key-input {
+    color: transparent !important;
+    text-shadow: 0 0 8px rgba(0,0,0,0.5) !important;
+    letter-spacing: 3px !important;
+}
+
+.authn123pan-key-input::selection {
+    background-color: rgba(0,0,0,0.15) !important;
+    color: transparent !important;
+}
+
+.authn123pan-key-input::-moz-selection {
+    background-color: rgba(0,0,0,0.15) !important;
+    color: transparent !important;
+}
