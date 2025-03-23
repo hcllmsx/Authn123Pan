@@ -1,4 +1,4 @@
-# Authn123Pan-forWP
+# Authn123Pan
 
 ## 项目简介
 
