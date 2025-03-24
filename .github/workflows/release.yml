@@ -8,19 +8,20 @@ on:
 jobs:
   build-and-release:
     runs-on: ubuntu-latest
-    # 添加以下权限配置
+    # 关键权限配置
     permissions:
       contents: write  # 允许创建 Releases 和上传文件
     steps:
       - name: Checkout Code
         uses: actions/checkout@v4
 
-      - name: Zip Folder
-        run: zip -r Authn123Pan-forWP-${{ github.ref_name }}.zip Authn123Pan-forWP/
+      - name: Zip Authn123Pan-forWP Folder
+        run: |
+          zip -r Authn123Pan-forWP-${{ github.ref_name }}.zip Authn123Pan-forWP/
 
       - name: Create Release
         id: create_release
-        uses: actions/create-release@v1
+        uses: actions/create-release@v1.1.4  # 使用明确的版本号
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
@@ -29,11 +30,12 @@ jobs:
           draft: false
           prerelease: false
 
-      - name: Upload Asset
-        uses: actions/upload-release-asset@v1
+      - name: Upload Release Asset
+        uses: actions/upload-release-asset@v1.0.2  # 使用明确的版本号
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
           upload_url: ${{ steps.create_release.outputs.upload_url }}
           asset_path: ./Authn123Pan-forWP-${{ github.ref_name }}.zip
           asset_name: Authn123Pan-forWP-${{ github.ref_name }}.zip
+          asset_content_type: application/zip
