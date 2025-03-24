@@ -3,39 +3,28 @@ name: Build and Release Authn123Pan-forWP
 on:
   push:
     tags:
-      - 'v*'  # 触发条件：推送以 'v' 开头的标签（如 v1.0.6）
+      - 'v*'
 
 jobs:
   build-and-release:
     runs-on: ubuntu-latest
-    # 关键权限配置
     permissions:
-      contents: write  # 允许创建 Releases 和上传文件
+      contents: write
     steps:
       - name: Checkout Code
-        uses: actions/checkout@v4
+        uses: actions/checkout@v4  # 使用最新版本
 
-      - name: Zip Authn123Pan-forWP Folder
-        run: |
-          zip -r Authn123Pan-forWP-${{ github.ref_name }}.zip Authn123Pan-forWP/
+      - name: Zip Folder
+        run: zip -r Authn123Pan-forWP-${{ github.ref_name }}.zip Authn123Pan-forWP/
 
-      - name: Create Release
-        id: create_release
-        uses: actions/create-release@v1.1.4  # 使用明确的版本号
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      # 改用更现代的 Release 管理 Action（推荐）
+      - name: Create Release and Upload Asset
+        uses: softprops/action-gh-release@v1  # 替代 create-release + upload-release-asset
         with:
           tag_name: ${{ github.ref_name }}
-          release_name: Authn123Pan-forWP ${{ github.ref_name }}
-          draft: false
-          prerelease: false
-
-      - name: Upload Release Asset
-        uses: actions/upload-release-asset@v1.0.2  # 使用明确的版本号
+          name: Authn123Pan-forWP ${{ github.ref_name }}
+          files: |
+            Authn123Pan-forWP-${{ github.ref_name }}.zip
+          generate_release_notes: true  # 自动生成 Release Notes
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        with:
-          upload_url: ${{ steps.create_release.outputs.upload_url }}
-          asset_path: ./Authn123Pan-forWP-${{ github.ref_name }}.zip
-          asset_name: Authn123Pan-forWP-${{ github.ref_name }}.zip
-          asset_content_type: application/zip
