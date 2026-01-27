@@ -12,19 +12,18 @@ jobs:
       contents: write
     steps:
       - name: Checkout Code
-        uses: actions/checkout@v4  # 使用最新版本
+        uses: actions/checkout@v4
 
       - name: Zip Folder
-        run: zip -r Authn123Pan-forWP-${{ github.ref_name }}.zip Authn123Pan-forWP/
+        run: zip -r Authn123Pan-forWP-${{ github.ref_name }}.zip For-WordPress/
 
-      # 改用更现代的 Release 管理 Action（推荐）
       - name: Create Release and Upload Asset
-        uses: softprops/action-gh-release@v1  # 替代 create-release + upload-release-asset
+        uses: softprops/action-gh-release@v1
         with:
           tag_name: ${{ github.ref_name }}
           name: Authn123Pan-forWP ${{ github.ref_name }}
           files: |
             Authn123Pan-forWP-${{ github.ref_name }}.zip
-          generate_release_notes: true  # 自动生成 Release Notes
+          generate_release_notes: true
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
