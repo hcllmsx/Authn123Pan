@@ -8,21 +8,11 @@ Authn123Pan-forWP 是一个 WordPress 插件，用于为你的WordPress网站中
 
 - ✅ **自动鉴权**：自动为123云盘直链添加鉴权参数
 - ✅ **后台配置**：提供友好的WordPress后台配置界面
-- ✅ **懒加载支持**：按需处理链接，不影响页面性能
-- ✅ **易于安装**：标准WordPress插件安装方式
 - ✅ **自定义菜单**：在WordPress后台左侧添加独立的设置菜单
 
 ## 安装与配置
 
 ### 1. 安装插件
-
-#### 方法一：手动安装
-
-1. 将 `For-WordPress` 文件夹上传至 WordPress 插件目录（`wp-content/plugins/`）
-2. 在 WordPress 后台导航菜单中进入 **"插件"** → **"已安装的插件"**
-3. 找到 **"Authn123Pan-forWP"** 插件，点击 **"启用"**
-
-#### 方法二：从GitHub下载安装
 
 1. 访问 [Authn123Pan GitHub Releases](https://github.com/hcllmsx/Authn123Pan/releases)
 2. 下载最新版本的 `Authn123Pan-forWP-*.zip` 文件
@@ -117,6 +107,7 @@ $auth_key = "{$expire_time}-{$rand_value}-{$uid}-{$signature}";
 ### Q: 插件处理后链接仍然无法访问？
 
 A: 请检查以下几点：
+
 1. 确认UID和鉴权密钥配置正确
 2. 确认123云盘直链管理页面设置的密钥与插件配置一致
 3. 检查链接是否为 `vip.123pan.cn` 域名
