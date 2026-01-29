@@ -1,6 +1,7 @@
 /**
  * Cloudflare Worker for 123pan Authentication
  * 作者：https://github.com/hcllmsx
+ * 项目：https://github.com/hcllmsx/Authn123Pan
  */
 
 // MD5 implementation for Cloudflare Workers

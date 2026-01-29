@@ -1,6 +1,7 @@
 /**
  * Vercel Serverless Function for 123pan Authentication
  * 作者: https://github.com/hcllmsx
+ * 项目：https://github.com/hcllmsx/Authn123Pan
  */
 
 import crypto from 'crypto';
@@ -81,9 +82,9 @@ export default async function handler(req, res) {
   } catch (error) {
     res.setHeader('Access-Control-Allow-Origin', '*');
     res.setHeader('Content-Type', 'application/json');
-    return res.status(500).json({ 
-      error: 'Internal server error', 
-      message: error.message 
+    return res.status(500).json({
+      error: 'Internal server error',
+      message: error.message
     });
   }
 }

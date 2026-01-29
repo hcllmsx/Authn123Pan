@@ -1,140 +1,104 @@
-# Authn123Pan-forWP
+# 123pan WordPress 插件鉴权
 
-## 项目简介
+这是一个 WordPress 插件，可以自动为网站内容中的 123pan 直链添加 URL 鉴权，保护你的 UID 和密钥不被泄露。
 
-Authn123Pan-forWP 是一个 WordPress 插件，用于为你的WordPress网站中嵌入的123云盘直链自动添加URL鉴权参数。通过配置用户的123云盘UID和鉴权密钥，插件会自动对符合条件的链接进行签名处理，增强直链访问的安全性。
+## 特性
 
-## 功能特性
+- 🔌 **WordPress 插件** - 直接在 WordPress 后台安装和配置
+- 🔒 **服务端鉴权** - UID 和密钥存储在 WordPress 数据库中，不会暴露给客户端
+- 🎯 **自动处理** - 自动识别并签名文章内容中的 123pan 直链
+- ⚙️ **灵活配置** - 支持自定义域名列表，适配不同的 123pan CDN 域名
+- ⚡ **即时生效** - 签名在页面加载时生成，默认15分钟有效期
 
-- ✅ **自动鉴权**：自动为123云盘直链添加鉴权参数
-- ✅ **后台配置**：提供友好的WordPress后台配置界面
-- ✅ **自定义菜单**：在WordPress后台左侧添加独立的设置菜单
+## 安装步骤
 
-## 安装与配置
+### 方法一：通过 WordPress 后台上传
 
-### 1. 安装插件
+1. 下载本仓库 Release 中的 `authn123pan-wordpress-版本号.zip` 压缩文件
+2. 在 WordPress 后台进入 **插件 → 安装插件 → 上传插件**
+3. 选择 ZIP 文件并安装
+4. 点击"启用"激活插件
 
-1. 访问 [Authn123Pan GitHub Releases](https://github.com/hcllmsx/Authn123Pan/releases)
-2. 下载最新版本的 `Authn123Pan-forWP-*.zip` 文件
-3. 在 WordPress 后台导航菜单中进入 **"插件"** → **"安装插件"**
-4. 点击 **"上传插件"**，选择下载的zip文件
-5. 安装完成后点击 **"启用插件"**
+### 方法二：手动安装
 
-### 2. 配置鉴权参数
+1. 下载并解压 `authn123pan-wordpress-版本号.zip`
+2. 上传 `authn123pan-wordpress` 文件夹到 WordPress 的 `wp-content/plugins/` 目录
+3. 在后台 **插件** 页面找到并启用
 
-1. 进入 WordPress 后台左侧菜单的 **"123云盘直链鉴权"** 选项
-2. 填写以下配置项：
-   - **123云盘UID**：在 123云盘个人中心获取的账号 ID
-   - **鉴权密钥**：在 123云盘直链管理页面设置的密钥（需与服务端一致）
-3. 点击 **"保存设置"**
+## 🔄 从旧版本升级（重要）
 
-### 3. 获取123云盘UID和鉴权密钥
+### 如果你之前使用的是 1.x 版本（旧插件名：Authn123Pan-forWP）
 
-#### 获取UID
+**版本 2.0.0 是重大更新，插件名称已更改。请按以下步骤操作：**
 
-1. 登录 [123云盘](https://www.123pan.com/)
-2. 进入个人中心
-3. 在账号信息中找到你的UID
+1. ⚠️ **不要删除旧插件的数据！** 你的设置（UID、密钥等）会自动保留
+2. 在后台 **停用** 旧版插件（Authn123Pan-forWP）
+3. **删除** 旧版插件
+4. 按上述方法安装新版插件（Authn123Pan-WordPress）
+5. **启用** 新插件
+6. 进入设置页面，确认你的配置已自动恢复
 
-#### 获取鉴权密钥
+✅ **数据安全保证：** 所有设置（UID、密钥、域名、有效期）都存储在数据库中，不会因为插件重装而丢失。
 
-1. 登录 [123云盘](https://www.123pan.com/)
-2. 进入直链管理页面
-3. 创建或编辑直链时设置鉴权密钥
+### 2.0.0 版本更新内容
+
+- ✨ 插件后台可手动设置需要处理的123云盘直链域名
+- ✨ 签名有效期默认改为 15 分钟（原 60 秒）
+- ✨ 新增后台可配置签名有效期
+- 🔧 统一插件命名规范为 `authn123pan-wordpress`
+
+## 配置说明
+
+1. 在 WordPress 后台左侧菜单找到 **123云盘直链鉴权**
+2. 配置以下参数：
+
+| 参数名 | 说明 | 默认值 | 必需 |
+|--------|------|--------|------|
+| 123云盘UID | 你的 123pan 账号 ID | - | ✅ |
+| 鉴权密钥 | 123pan 提供的鉴权密钥 | - | ✅ |
+| 123云盘直链域名 | 需要处理的域名列表，每行一个 | `vip.123pan.cn`<br>`v.123pan.cn` | ⚠️ 可选 |
+| 签名有效期 | 签名链接的有效期（秒） | 900秒（15分钟） | ⚠️ 可选 |
+
+> **建议范围：** 60-3600 秒（1分钟到1小时）
+
+3. 保存设置后，插件会自动生效
 
 ## 使用方法
 
-安装并配置完成后，插件会自动处理WordPress文章和页面中的123云盘直链。你只需要在内容中插入123云盘的直链，插件会自动为其添加鉴权参数。
+配置完成后，**无需任何额外操作**。插件会自动处理：
 
-### 示例
+- 文章正文中的 123pan 直链
+- 页面中的 123pan 直链
+- 任何通过 WordPress 编辑器添加的 123pan 资源
 
-在WordPress编辑器中插入以下链接：
+只需要在文章中正常插入 123pan 直链即可：
 
+```html
+<video src="https://vip.123pan.cn/xxx/video.mp4" controls></video>
+<img src="https://vip.123pan.cn/xxx/image.jpg">
 ```
-https://vip.123pan.cn/your-file-path/video.mp4
-```
 
-插件会自动将其转换为：
-
-```
-https://vip.123pan.cn/your-file-path/video.mp4?auth_key=expire_time-rand_value-uid-signature
-```
+插件会在页面输出时自动添加鉴权参数。
 
 ## 工作原理
 
-插件通过WordPress的 `the_content` 过滤器，在内容输出前自动检测并处理123云盘直链。处理流程如下：
-
-1. 检测内容中的123云盘直链接（`vip.123pan.cn` 域名）
-2. 使用配置的UID和鉴权密钥生成签名
-3. 将鉴权参数（`auth_key`）添加到URL中
-4. 返回处理后的内容
-
-签名生成算法：
-
-```php
-$expire_time = time() + 60; // 60秒有效期
-$rand_value = rand(0, 100000);
-
-$signature = md5("{$request_path}-{$expire_time}-{$rand_value}-{$uid}-{$private_key}");
-$auth_key = "{$expire_time}-{$rand_value}-{$uid}-{$signature}";
-```
-
-## 技术细节
-
-### 支持的链接格式
-
-插件会自动处理以下格式的链接：
-
-- `https://vip.123pan.cn/*`
-- `http://vip.123pan.cn/*`
-
-### 链接有效期
-
-插件生成的鉴权链接有效期为 **60秒**，可以根据需要修改 [authn123pan-forwp.php](authn123pan-forwp.php#L100) 中的 `$expire_time` 值。
-
-### 文件类型支持
-
-插件支持所有文件类型的123云盘直链，包括但不限于：
-
-- 视频文件（mp4, avi, mkv等）
-- 音频文件（mp3, wav, flac等）
-- 图片文件（jpg, png, gif等）
-- 文档文件（pdf, doc, docx等）
-- 压缩文件（zip, rar等）
-
-## 常见问题
-
-### Q: 插件处理后链接仍然无法访问？
-
-A: 请检查以下几点：
-
-1. 确认UID和鉴权密钥配置正确
-2. 确认123云盘直链管理页面设置的密钥与插件配置一致
-3. 检查链接是否为 `vip.123pan.cn` 域名
-4. 确认链接未过期（60秒有效期）
-
-### Q: 如何禁用插件？
-
-A: 在 WordPress 后台导航菜单中进入 **"插件"** → **"已安装的插件"**，找到 **"Authn123Pan-forWP"** 插件，点击 **"停用"** 即可。
-
-### Q: 插件会影响网站性能吗？
-
-A: 插件使用WordPress的过滤器机制，只在内容输出时处理链接，对性能影响极小。
-
-## 更新日志
-
-### v1.0.6
-
-- 优化插件结构和命名
-- 添加自定义菜单图标
-- 改进后台界面样式
-
-## 许可证
-
-MIT License
+1. 用户访问包含 123pan 直链的页面
+2. WordPress 在输出内容前，使用 `the_content` 过滤器处理内容
+3. 插件识别所有配置的域名下的链接
+4. 使用 UID 和密钥为每个链接生成签名（默认有效期15分钟）
+5. 将签名附加到原始URL上并输出
 
 ## 相关链接
 
-- [项目主页](https://github.com/hcllmsx/Authn123Pan)
-- [123云盘](https://www.123pan.com/)
-- [123pan直链鉴权参考](https://gitee.com/pan123-git/123pan-link)
+- **GitHub 仓库**: [hcllmsx/Authn123Pan](https://github.com/hcllmsx/Authn123Pan)
+- **123pan**: [官方网站](https://www.123pan.com/)
+
+## 相关项目
+
+- **Cloudflare Workers 版本**: [For-cloudflareWorkers](../For-cloudflareWorkers/)
+- **Vercel 版本**: [For-vercel](../For-vercel/)
+- **Netlify 版本**: [For-netlify](../For-netlify/)
+
+---
+
+**作者**: [hcllmsx](https://github.com/hcllmsx)

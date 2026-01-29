@@ -1,22 +1,24 @@
 /**
- * 123pan 自动鉴权客户端 (Auto Mode) - 配合 Vercel Serverless Function 使用
+ * 123pan 自动鉴权客户端 (Universal Version)
+ * 同时支持 Cloudflare Workers 和 Vercel Serverless Functions
  * 
- * API 代码见: https://github.com/hcllmsx/Authn123Pan/For-vercel/api/sign.js
  * 作者: https://github.com/hcllmsx
- * 
  * 
  * 使用方法：
  * 1. 在HTML中引入此脚本
- * 2. 配置 API URL（通过 data-api-url 属性或全局配置）
- * 3. 在视频/图片元素上添加 data-123pan-src 属性，值为123pan的原始URL
+ * 2. 配置服务URL（使用 data-auth-url 属性）
+ * 3. 在视频/图片元素上添加 data-123pan-src 属性
  * 4. 脚本会自动处理鉴权，只在用户操作时才请求签名
  * 
  * 示例：
- * <script src="auth-123pan-client.js" data-api-url="https://your-app.vercel.app"></script>
+ * <!-- Cloudflare Workers -->
+ * <script src="auth-123pan-client.js" data-auth-url="https://your-worker.workers.dev"></script>
  * 
- * <video data-123pan-src="https://xxx.v.123pan.cn/xxx/video.mp4" controls></video>
- * <img data-123pan-src="https://xxx.v.123pan.cn/xxx/image.jpg">
- * <button data-123pan-action="play" data-123pan-src="https://xxx.v.123pan.cn/xxx/video.mp4">播放</button>
+ * <!-- Vercel -->
+ * <script src="auth-123pan-client.js" data-auth-url="https://your-app.vercel.app/api/sign"></script>
+ * 
+ * <!-- Netlify -->
+ * <script src="auth-123pan-client.js" data-auth-url="https://your-app.netlify.app/.netlify/functions/sign"></script>
  */
 
 (function (window, document) {
@@ -25,7 +27,7 @@
     // 核心鉴权客户端
     const Pan123Auth = {
         config: {
-            apiUrl: '',
+            authUrl: '', // 统一的鉴权服务URL
             cacheEnabled: true,
             cacheDuration: 30 * 60 * 1000, // 30分钟
             autoInit: true,
@@ -37,8 +39,8 @@
         },
 
         async getSignedUrl(originalUrl) {
-            if (!this.config.apiUrl) {
-                throw new Error('API URL not configured');
+            if (!this.config.authUrl) {
+                throw new Error('Auth URL not configured');
             }
 
             // 检查缓存
@@ -52,7 +54,7 @@
 
             try {
                 console.log('[Pan123Auth] Requesting signed URL...');
-                const response = await fetch(`${this.config.apiUrl}/api/sign`, {
+                const response = await fetch(this.config.authUrl, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ url: originalUrl }),
@@ -225,13 +227,13 @@
         // 从脚本标签获取配置
         const scriptTag = document.currentScript;
         if (scriptTag) {
-            const apiUrl = scriptTag.dataset.apiUrl || scriptTag.getAttribute('data-api-url');
+            const authUrl = scriptTag.dataset.authUrl || scriptTag.getAttribute('data-auth-url');
             const cacheEnabled = scriptTag.dataset.cache !== 'false';
             const autoInit = scriptTag.dataset.autoInit !== 'false';
 
-            if (apiUrl) {
+            if (authUrl) {
                 Pan123Auth.configure({
-                    apiUrl: apiUrl,
+                    authUrl: authUrl,
                     cacheEnabled: cacheEnabled,
                     autoInit: autoInit,
                 });
@@ -239,7 +241,7 @@
         }
 
         // 如果启用了自动初始化
-        if (Pan123Auth.config.autoInit && Pan123Auth.config.apiUrl) {
+        if (Pan123Auth.config.autoInit && Pan123Auth.config.authUrl) {
             if (document.readyState === 'loading') {
                 document.addEventListener('DOMContentLoaded', () => {
                     AutoHandler.init();

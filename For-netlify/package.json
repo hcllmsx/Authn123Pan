@@ -1,16 +1,15 @@
 {
-    "name": "authn123pan-vercel",
+    "name": "authn123pan-netlify",
     "version": "1.0.0",
-    "description": "123pan authentication service for Vercel",
+    "description": "123pan authentication service for Netlify",
     "type": "module",
     "scripts": {
-        "dev": "vercel dev",
-        "deploy": "vercel deploy"
+        "dev": "netlify dev"
     },
     "keywords": [
         "123pan",
         "authentication",
-        "vercel",
+        "netlify",
         "serverless"
     ],
     "author": "hcllmsx",

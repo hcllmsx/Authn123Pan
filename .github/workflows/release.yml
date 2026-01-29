@@ -1,4 +1,4 @@
-name: Build and Release Authn123Pan-forWP
+name: Build and Release Authn123Pan-WordPress
 
 on:
   push:
@@ -14,16 +14,26 @@ jobs:
       - name: Checkout Code
         uses: actions/checkout@v4
 
-      - name: Zip Folder
-        run: zip -r Authn123Pan-forWP-${{ github.ref_name }}.zip For-WordPress/
+      - name: Prepare and Zip WordPress Plugin
+        run: |
+          # 创建临时目录
+          mkdir -p temp/authn123pan-wordpress
+          # 复制文件到新文件夹
+          cp For-WordPress/authn123pan-wordpress.php temp/authn123pan-wordpress/
+          cp For-WordPress/authn123pan-style.css temp/authn123pan-wordpress/
+          cp For-WordPress/logo123pan.svg temp/authn123pan-wordpress/
+          # 打包
+          cd temp
+          zip -r ../authn123pan-wordpress-${{ github.ref_name }}.zip authn123pan-wordpress/
+          cd ..
 
       - name: Create Release and Upload Asset
         uses: softprops/action-gh-release@v1
         with:
           tag_name: ${{ github.ref_name }}
-          name: Authn123Pan-forWP ${{ github.ref_name }}
+          name: Authn123Pan-WordPress ${{ github.ref_name }}
           files: |
-            Authn123Pan-forWP-${{ github.ref_name }}.zip
+            authn123pan-wordpress-${{ github.ref_name }}.zip
           generate_release_notes: true
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
