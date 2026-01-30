@@ -1,0 +1,11 @@
+# Cloudflare Workers 配置文件
+name = "authn123pan"
+compatibility_date = "2026-01-30"
+main = "worker.js"
+
+# 环境变量配置
+# [vars]
+# 注意：实际的环境变量值应该在 Cloudflare 控制台中设置
+# UID = "your-123pan-uid"
+# PRIVATE_KEY = "your-123pan-private-key"
+# VALID_DURATION = "900"
