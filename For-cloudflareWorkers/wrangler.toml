@@ -9,3 +9,19 @@ main = "worker.js"
 # UID = "your-123pan-uid"
 # PRIVATE_KEY = "your-123pan-private-key"
 # VALID_DURATION = "900"
+
+# 可观测性配置
+[observability]
+enabled = false
+head_sampling_rate = 1
+
+[observability.logs]
+enabled = true
+head_sampling_rate = 1
+persist = true
+invocation_logs = true
+
+[observability.traces]
+enabled = false
+persist = true
+head_sampling_rate = 1
