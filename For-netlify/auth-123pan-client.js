@@ -168,9 +168,16 @@
         init() {
             console.log('[AutoHandler] Initializing...');
 
+            // 1x1 透明像素占位符，防止浏览器在 JS 设置真实 src 之前请求 null
+            const PLACEHOLDER = 'data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7';
+
             // 自动处理所有图片（立即加载）
             const images = document.querySelectorAll('img[data-123pan-src]:not([data-123pan-lazy="true"])');
             images.forEach(img => {
+                // 如果图片没有 src 或 src 无效，先设置占位符
+                if (!img.src || img.src === window.location.href || img.src.endsWith('/null')) {
+                    img.src = PLACEHOLDER;
+                }
                 this.handleImage(img);
             });
 
