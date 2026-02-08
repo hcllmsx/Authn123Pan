@@ -168,11 +168,22 @@
 ### 2. 使用 123pan 资源
 
 ```html
-<!-- 视频 -->
+<!-- 视频（点击播放时自动鉴权） -->
 <video controls data-123pan-src="https://xxx.v.123pan.cn/xxx/video.mp4"></video>
 
-<!-- 图片 -->
+<!-- 图片（页面加载时自动鉴权） -->
 <img data-123pan-src="https://xxx.v.123pan.cn/xxx/image.jpg">
+
+<!-- 懒加载图片（滚动到视口时才鉴权，提升性能） -->
+<img data-123pan-src="https://xxx.v.123pan.cn/xxx/image.jpg" data-123pan-lazy="true">
+
+<!-- Link 标签（如字体、CSS 等资源） -->
+<link rel="stylesheet" data-123pan-href="https://xxx.v.123pan.cn/xxx/style.css">
+
+<!-- 背景图片（任意元素均可） -->
+<div data-123pan-url="https://xxx.v.123pan.cn/xxx/background.jpg" 
+     style="width: 100%; height: 300px; background-size: cover;">
+</div>
 
 <!-- 自定义播放按钮 -->
 <button data-123pan-action="play" 
@@ -180,6 +191,17 @@
     播放视频
 </button>
 ```
+
+### 3. 支持的属性汇总
+
+| 属性 | 作用 | 适用元素 |
+|-----|------|---------|
+| `data-123pan-src` | 需要鉴权的资源URL | `<img>`, `<video>`, `<audio>` |
+| `data-123pan-lazy` | 设为 `"true"` 开启懒加载 | `<img>` |
+| `data-123pan-href` | 需要鉴权的链接URL | `<link>` |
+| `data-123pan-url` | 需要鉴权的背景图片URL | 任意元素 |
+| `data-123pan-action` | 设为 `"play"` 创建播放按钮 | `<button>`, `<div>` 等 |
+| `data-123pan-target` | 指定播放按钮控制的目标元素选择器 | 播放按钮元素 |
 
 **就这么简单！** 无需编写额外的 JavaScript 代码。
 
