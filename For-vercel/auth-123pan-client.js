@@ -114,6 +114,34 @@
             }
         },
 
+        // 处理 link 标签
+        async handleLink(linkElement) {
+            const originalUrl = linkElement.dataset['123panHref'];
+            if (!originalUrl) return;
+
+            try {
+                const signedUrl = await Pan123Auth.getSignedUrl(originalUrl);
+                linkElement.href = signedUrl;
+                console.log('[AutoHandler] Link href set');
+            } catch (error) {
+                console.error('[AutoHandler] Failed to set link href:', error);
+            }
+        },
+
+        // 处理元素的背景图片（通过 data-123pan-url 属性）
+        async handleBackgroundImage(element) {
+            const originalUrl = element.dataset['123panUrl'];
+            if (!originalUrl) return;
+
+            try {
+                const signedUrl = await Pan123Auth.getSignedUrl(originalUrl);
+                element.style.backgroundImage = `url('${signedUrl}')`;
+                console.log('[AutoHandler] Background image set');
+            } catch (error) {
+                console.error('[AutoHandler] Failed to set background image:', error);
+            }
+        },
+
         // 处理自定义播放按钮
         async handlePlayButton(button) {
             const originalUrl = button.dataset['123panSrc'];
@@ -211,6 +239,18 @@
                 video.addEventListener('play', playHandler);
             });
 
+            // 处理 link 标签
+            const links = document.querySelectorAll('link[data-123pan-href]');
+            links.forEach(link => {
+                this.handleLink(link);
+            });
+
+            // 处理带 data-123pan-url 属性的元素（背景图片）
+            const bgElements = document.querySelectorAll('[data-123pan-url]');
+            bgElements.forEach(element => {
+                this.handleBackgroundImage(element);
+            });
+
             // 处理自定义播放按钮
             const playButtons = document.querySelectorAll('[data-123pan-action="play"]');
             playButtons.forEach(button => {
@@ -224,6 +264,8 @@
                 images: images.length,
                 lazyImages: lazyImages.length,
                 videos: videos.length,
+                links: links.length,
+                bgElements: bgElements.length,
                 playButtons: playButtons.length,
             });
         },
@@ -265,6 +307,8 @@
         init: () => AutoHandler.init(),
         handleVideo: (el) => AutoHandler.handleVideo(el),
         handleImage: (el) => AutoHandler.handleImage(el),
+        handleLink: (el) => AutoHandler.handleLink(el),
+        handleBackgroundImage: (el) => AutoHandler.handleBackgroundImage(el),
         handlePlayButton: (el) => AutoHandler.handlePlayButton(el),
     };
 
