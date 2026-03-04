@@ -1,4 +1,33 @@
 /**
+// Helper to fetch an HLS playlist, sign each segment URL, and return a blob URL
+async function processM3U8(playlistUrl) {
+    try {
+        const resp = await fetch(playlistUrl);
+        if (!resp.ok) throw new Error('Failed to fetch playlist');
+        const text = await resp.text();
+        const lines = text.split('\n');
+        const signedLines = await Promise.all(lines.map(async (line) => {
+            const trimmed = line.trim();
+            // Skip comments and empty lines
+            if (!trimmed || trimmed.startsWith('#')) return line;
+            try {
+                const segmentUrl = new URL(trimmed, playlistUrl).toString();
+                const signedSegment = await Pan123Auth.getSignedUrl(segmentUrl);
+                return signedSegment;
+            } catch (e) {
+                console.warn('[processM3U8] Failed to sign segment', trimmed, e);
+                return line; // fallback to original
+            }
+        }));
+        const signedPlaylist = signedLines.join('\n');
+        const blob = new Blob([signedPlaylist], { type: 'application/vnd.apple.mpegurl' });
+        return URL.createObjectURL(blob);
+    } catch (e) {
+        console.error('[processM3U8] Error processing playlist', e);
+        throw e;
+    }
+}
+
  * 123pan 自动鉴权客户端 (Universal Version)
  * 同时支持 Cloudflare Workers 和 Vercel Serverless Functions
  * 
@@ -93,7 +122,13 @@
 
             try {
                 const signedUrl = await Pan123Auth.getSignedUrl(originalUrl);
-                videoElement.src = signedUrl;
+                // If the signed URL points to an HLS playlist, process it to sign each segment
+                if (signedUrl.endsWith('.m3u8')) {
+                    const processedUrl = await processM3U8(signedUrl);
+                    videoElement.src = processedUrl;
+                } else {
+                    videoElement.src = signedUrl;
+                }
                 console.log('[AutoHandler] Video source set');
             } catch (error) {
                 console.error('[AutoHandler] Failed to set video source:', error);

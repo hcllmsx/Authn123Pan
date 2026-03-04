@@ -53,7 +53,7 @@ For-cloudflareWorkers/
 
 ```html
 <!-- 在 </body> 前引入，配置 Worker URL -->
-<script src="./auth-123pan-client.js" 
+<script src="./GeneralClientScripts/auth-123pan-client.js" 
         data-auth-url="https://your-worker.workers.dev"></script>
 ```
 

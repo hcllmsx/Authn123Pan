@@ -153,15 +153,15 @@
 
 ```html
 <!-- Cloudflare Workers -->
-<script src="./auth-123pan-client.js" 
+<script src="./GeneralClientScripts/auth-123pan-client.js" 
         data-auth-url="https://your-worker.workers.dev"></script>
 
 <!-- Vercel -->
-<script src="./auth-123pan-client.js" 
+<script src="./GeneralClientScripts/auth-123pan-client.js" 
         data-auth-url="https://your-app.vercel.app/api/sign"></script>
 
 <!-- Netlify -->
-<script src="./auth-123pan-client.js" 
+<script src="./GeneralClientScripts/auth-123pan-client.js" 
         data-auth-url="https://your-site.netlify.app/.netlify/functions/sign"></script>
 ```
 

@@ -73,7 +73,7 @@ vercel
 
 ```html
 <!-- 在 </body> 前引入，配置鉴权服务 URL -->
-<script src="./auth-123pan-client.js" 
+<script src="./GeneralClientScripts/auth-123pan-client.js" 
         data-auth-url="https://your-app.vercel.app/api/sign"></script>
 ```
 

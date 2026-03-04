@@ -7,6 +7,57 @@ Version: 2.0.0
 Author: hcllmsx
 */
 
+// ---------- HLS (m3u8) 支持 ----------
+// 当请求形如 ?authn123pan_m3u8=原始_playlist_url 时，返回已为每个切片签名的 playlist
+add_action('init', function () {
+    if (isset($_GET['authn123pan_m3u8'])) {
+        $playlist_url = esc_url_raw($_GET['authn123pan_m3u8']);
+        header('Content-Type: application/vnd.apple.mpegurl');
+        echo authn123pan_process_m3u8($playlist_url);
+        exit;
+    }
+});
+
+/**
+ * 读取远程 .m3u8 播放列表，为其中的每个媒体切片生成签名 URL
+ * @param string $playlist_url 原始未签名的 playlist 地址
+ * @return string 处理后的 playlist 内容（每行切片已签名）
+ */
+function authn123pan_process_m3u8($playlist_url) {
+    // 获取原始 playlist 内容
+    $resp = wp_remote_get($playlist_url);
+    if (is_wp_error($resp)) {
+        return "# error fetching playlist\n";
+    }
+    $body = wp_remote_retrieve_body($resp);
+    $lines = explode("\n", $body);
+
+    // 读取插件全局配置
+    $uid = get_option('authn123pan_uid');
+    $private_key = get_option('authn123pan_private_key');
+    $valid_duration = get_option('authn123pan_valid_duration') ?: 900;
+
+    $signed_lines = array_map(function($line) use ($uid, $private_key, $valid_duration, $playlist_url) {
+        $trim = trim($line);
+        // 保留注释、空行
+        if ($trim === '' || strpos($trim, '#') === 0) {
+            return $line;
+        }
+        // 处理相对路径或完整 URL
+        if (wp_http_validate_url($trim)) {
+            $segment_url = $trim;
+        } else {
+            // 相对路径基于 playlist URL
+            $segment_url = rtrim($playlist_url, '/') . '/' . ltrim($trim, '/');
+        }
+        // 为切片生成签名 URL
+        return authn123pan_sign_url($segment_url, $private_key, $uid, $valid_duration);
+    }, $lines);
+
+    return implode("\n", $signed_lines);
+}
+
+
 // 在插件列表页面添加设置链接
 function authn123pan_plugin_action_links($links)
 {
