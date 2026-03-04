@@ -23,7 +23,8 @@ add_action('init', function () {
  * @param string $playlist_url 原始未签名的 playlist 地址
  * @return string 处理后的 playlist 内容（每行切片已签名）
  */
-function authn123pan_process_m3u8($playlist_url) {
+function authn123pan_process_m3u8($playlist_url)
+{
     // 获取原始 playlist 内容
     $resp = wp_remote_get($playlist_url);
     if (is_wp_error($resp)) {
@@ -37,7 +38,7 @@ function authn123pan_process_m3u8($playlist_url) {
     $private_key = get_option('authn123pan_private_key');
     $valid_duration = get_option('authn123pan_valid_duration') ?: 900;
 
-    $signed_lines = array_map(function($line) use ($uid, $private_key, $valid_duration, $playlist_url) {
+    $signed_lines = array_map(function ($line) use ($uid, $private_key, $valid_duration, $playlist_url) {
         $trim = trim($line);
         // 保留注释、空行
         if ($trim === '' || strpos($trim, '#') === 0) {
