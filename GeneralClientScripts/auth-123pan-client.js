@@ -115,6 +115,8 @@ async function processM3U8(playlistUrl) {
                 throw error;
             }
         },
+
+        processM3U8: processM3U8
     };
 
     // 自动处理模块
@@ -127,7 +129,7 @@ async function processM3U8(playlistUrl) {
             try {
                 const signedUrl = await Pan123Auth.getSignedUrl(originalUrl);
                 // If the signed URL points to an HLS playlist, process it to sign each segment
-                if (signedUrl.endsWith('.m3u8')) {
+                if (originalUrl.includes('.m3u8')) {
                     const processedUrl = await processM3U8(signedUrl);
                     videoElement.src = processedUrl;
                 } else {
