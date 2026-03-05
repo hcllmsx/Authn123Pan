@@ -3,3 +3,13 @@
 
 [functions]
   node_bundler = "esbuild"
+
+[[redirects]]
+  from = "/api/sign"
+  to = "/.netlify/functions/sign"
+  status = 200
+
+[[redirects]]
+  from = "/api/m3u8Proxy"
+  to = "/.netlify/functions/m3u8Proxy"
+  status = 200

@@ -5,12 +5,15 @@
       "destination": "/api/sign"
     },
     {
-      "source": "/api/(.*)",
-      "destination": "/api"
+      "source": "/m3u8Proxy",
+      "destination": "/api/m3u8Proxy"
     }
   ],
   "functions": {
     "api/sign.js": {
+      "maxDuration": 10
+    },
+    "api/m3u8Proxy.js": {
       "maxDuration": 10
     }
   }
