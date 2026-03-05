@@ -90,7 +90,15 @@ export async function handler(event, context) {
         // Dynamically import node-fetch if global fetch is not available (Node < 18)
         const fetchFunc = globalThis.fetch || (await import('node-fetch')).default;
 
-        const response = await fetchFunc(signedM3u8Url);
+        // Use incoming referer if available, or fallback to the site domain
+        const referer = event.headers.referer || 'https://jixu.oooq.cc/';
+
+        const response = await fetchFunc(signedM3u8Url, {
+            headers: {
+                'Referer': referer,
+                'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36'
+            }
+        });
 
         if (!response.ok) {
             return {

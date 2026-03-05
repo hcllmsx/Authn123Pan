@@ -57,7 +57,16 @@ export default async function handler(req, res) {
 
         // 1. 获取原 M3U8 时也需要鉴权
         const signedM3u8Url = signURL(url, PRIVATE_KEY, UID, VALID_DURATION);
-        const response = await fetch(signedM3u8Url);
+
+        // Use incoming referer if available, or fallback to the site domain
+        const referer = req.headers.referer || 'https://jixu.oooq.cc/';
+
+        const response = await fetch(signedM3u8Url, {
+            headers: {
+                'Referer': referer,
+                'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36'
+            }
+        });
 
         if (!response.ok) {
             return res.status(response.status).json({ error: 'Failed to fetch m3u8 from 123pan' });

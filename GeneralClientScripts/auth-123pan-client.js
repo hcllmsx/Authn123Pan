@@ -21,37 +21,31 @@
  * <script src="auth-123pan-client.js" data-auth-url="https://your-app.netlify.app/.netlify/functions/sign"></script>
  */
 
-// Helper to fetch an HLS playlist, sign each segment URL, and return a blob URL
-async function processM3U8(playlistUrl) {
-    try {
-        const resp = await fetch(playlistUrl);
-        if (!resp.ok) throw new Error('Failed to fetch playlist');
-        const text = await resp.text();
-        const lines = text.split('\n');
+// construct the proxy URL based on configured authUrl
+function getM3u8ProxyUrl(originalUrl, authUrl) {
+    if (!authUrl) return originalUrl;
 
-        // Ensure Pan123Auth is defined to sign segments.
-        const signedLines = await Promise.all(lines.map(async (line) => {
-            const trimmed = line.trim();
-            // Skip comments and empty lines
-            if (!trimmed || trimmed.startsWith('#')) return line;
-            try {
-                const segmentUrl = new URL(trimmed, playlistUrl).toString();
-                // Accessing Pan123Auth from global since it's defined below
-                const signedSegment = await window.Pan123Auth.getSignedUrl(segmentUrl);
-                return signedSegment;
-            } catch (e) {
-                console.warn('[processM3U8] Failed to sign segment', trimmed, e);
-                return line; // fallback to original
-            }
-        }));
+    let proxyBaseUrl = '';
 
-        const signedPlaylist = signedLines.join('\n');
-        const blob = new Blob([signedPlaylist], { type: 'application/vnd.apple.mpegurl' });
-        return URL.createObjectURL(blob);
-    } catch (e) {
-        console.error('[processM3U8] Error processing playlist', e);
-        throw e;
+    // Vercel match (/api/sign)
+    if (authUrl.includes('/api/sign')) {
+        proxyBaseUrl = authUrl.replace(/\/api\/sign$/, '/api/m3u8Proxy');
     }
+    // Netlify match (/.netlify/functions/sign)
+    else if (authUrl.includes('/.netlify/functions/sign')) {
+        proxyBaseUrl = authUrl.replace(/\/\.netlify\/functions\/sign$/, '/.netlify/functions/m3u8Proxy');
+    }
+    // Cloudflare Workers / Custom (assumed /api/m3u8Proxy exists at origin or as subpath)
+    else {
+        try {
+            const urlObj = new URL(authUrl);
+            proxyBaseUrl = urlObj.origin + '/api/m3u8Proxy';
+        } catch (e) {
+            return originalUrl;
+        }
+    }
+
+    return `${proxyBaseUrl}?url=${encodeURIComponent(originalUrl)}`;
 }
 
 (function (window, document) {
@@ -116,7 +110,10 @@ async function processM3U8(playlistUrl) {
             }
         },
 
-        processM3U8: processM3U8
+        // Helper for scripts like love-script.js
+        processM3U8: function (originalUrl) {
+            return Promise.resolve(getM3u8ProxyUrl(originalUrl, this.config.authUrl));
+        }
     };
 
     // 自动处理模块
@@ -127,12 +124,12 @@ async function processM3U8(playlistUrl) {
             if (!originalUrl) return;
 
             try {
-                const signedUrl = await Pan123Auth.getSignedUrl(originalUrl);
-                // If the signed URL points to an HLS playlist, process it to sign each segment
+                // If the URL points to an HLS playlist, use the proxy
                 if (originalUrl.includes('.m3u8')) {
-                    const processedUrl = await processM3U8(signedUrl);
-                    videoElement.src = processedUrl;
+                    const proxyUrl = getM3u8ProxyUrl(originalUrl, Pan123Auth.config.authUrl);
+                    videoElement.src = proxyUrl;
                 } else {
+                    const signedUrl = await Pan123Auth.getSignedUrl(originalUrl);
                     videoElement.src = signedUrl;
                 }
                 console.log('[AutoHandler] Video source set');
@@ -194,23 +191,29 @@ async function processM3U8(playlistUrl) {
             }
 
             try {
-                const signedUrl = await Pan123Auth.getSignedUrl(originalUrl);
+                // Determine the correct URL to use (signed vs proxy)
+                let finalUrl;
+                if (originalUrl.includes('.m3u8')) {
+                    finalUrl = getM3u8ProxyUrl(originalUrl, Pan123Auth.config.authUrl);
+                } else {
+                    finalUrl = await Pan123Auth.getSignedUrl(originalUrl);
+                }
 
                 // 如果指定了目标元素
                 if (targetSelector) {
                     const target = document.querySelector(targetSelector);
                     if (target) {
                         if (target.tagName === 'VIDEO' || target.tagName === 'AUDIO') {
-                            target.src = signedUrl;
+                            target.src = finalUrl;
                             target.play();
                         } else if (target.tagName === 'IMG') {
-                            target.src = signedUrl;
+                            target.src = finalUrl;
                         }
                     }
                 } else {
                     // 创建新的视频元素
                     const video = document.createElement('video');
-                    video.src = signedUrl;
+                    video.src = finalUrl;
                     video.controls = true;
                     video.autoplay = true;
                     video.style.width = '100%';
