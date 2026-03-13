@@ -40,18 +40,24 @@ function authn123pan_process_m3u8($playlist_url)
 
     $signed_lines = array_map(function ($line) use ($uid, $private_key, $valid_duration, $playlist_url) {
         $trim = trim($line);
-        // 保留注释、空行
-        if ($trim === '' || strpos($trim, '#') === 0) {
+        if ($trim === '') {
             return $line;
         }
-        // 处理相对路径或完整 URL
-        if (wp_http_validate_url($trim)) {
-            $segment_url = $trim;
-        } else {
-            // 相对路径基于 playlist URL
-            $segment_url = rtrim($playlist_url, '/') . '/' . ltrim($trim, '/');
+
+        // 处理带 URI 的标签 (例如 #EXT-X-MAP:URI="init.mp4")
+        if (strpos($trim, '#') === 0) {
+            return preg_replace_callback('/URI="([^"]+)"/', function ($matches) use ($uid, $private_key, $valid_duration, $playlist_url) {
+                $uri = $matches[1];
+                // 转换为绝对路径
+                $absolute_url = wp_http_validate_url($uri) ? $uri : rtrim($playlist_url, '/') . '/' . ltrim($uri, '/');
+                $signed = authn123pan_sign_url($absolute_url, $private_key, $uid, $valid_duration);
+                return 'URI="' . $signed . '"';
+            }, $line);
         }
-        // 为切片生成签名 URL
+
+        // 处理正常的切片行
+        $segment_url = wp_http_validate_url($trim) ? $trim : rtrim($playlist_url, '/') . '/' . ltrim($trim, '/');
+        
         return authn123pan_sign_url($segment_url, $private_key, $uid, $valid_duration);
     }, $lines);
 

@@ -113,6 +113,28 @@ function getM3u8ProxyUrl(originalUrl, authUrl) {
         // Helper for scripts like love-script.js
         processM3U8: function (originalUrl) {
             return Promise.resolve(getM3u8ProxyUrl(originalUrl, this.config.authUrl));
+        },
+
+        // Hook for Video.js to fix relative paths in proxied HLS
+        setupVideoJSHook: function (originalM3u8Url) {
+            if (typeof videojs === 'undefined' || !videojs.Vhs) return;
+
+            const lastSlash = originalM3u8Url.lastIndexOf('/');
+            const baseUrl = originalM3u8Url.substring(0, lastSlash + 1);
+            const authUrl = this.config.authUrl;
+
+            videojs.Vhs.xhr.beforeRequest = function (options) {
+                const url = options.uri;
+                if (url.includes('auth123pan-vercel.oooq.cc') && 
+                    !url.includes('m3u8Proxy') && 
+                    !url.includes('/api/sign')) {
+                    
+                    const fileName = url.substring(url.lastIndexOf('/') + 1);
+                    options.uri = getM3u8ProxyUrl(baseUrl + fileName, authUrl);
+                    console.log('[Pan123Auth] Fixed relative segment URL:', options.uri);
+                }
+                return options;
+            };
         }
     };
 
@@ -127,6 +149,9 @@ function getM3u8ProxyUrl(originalUrl, authUrl) {
                 // If the URL points to an HLS playlist, use the proxy
                 if (originalUrl.includes('.m3u8')) {
                     const proxyUrl = getM3u8ProxyUrl(originalUrl, Pan123Auth.config.authUrl);
+                    if (Pan123Auth.setupVideoJSHook) {
+                        Pan123Auth.setupVideoJSHook(originalUrl);
+                    }
                     videoElement.src = proxyUrl;
                 } else {
                     const signedUrl = await Pan123Auth.getSignedUrl(originalUrl);

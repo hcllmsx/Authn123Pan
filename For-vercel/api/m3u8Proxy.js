@@ -75,16 +75,29 @@ export default async function handler(req, res) {
         const text = await response.text();
         const lines = text.split('\n');
 
-        // 2. 遍历 M3U8 内容，替换所有的 ts 相对链接为鉴权后的绝对链接
+        // 2. 遍历 M3U8 内容，替换所有的 ts/m4s 相对链接为鉴权后的绝对链接
+        // 同时处理标签中的 URI，如 #EXT-X-MAP:URI="init.mp4"
         const signedLines = lines.map(line => {
             const trimmed = line.trim();
-            // 忽略空行和注释
-            if (!trimmed || trimmed.startsWith('#')) return line;
+            if (!trimmed) return line;
+
+            // 处理带 URI 的标签
+            if (trimmed.startsWith('#')) {
+                return line.replace(/URI="([^"]+)"/g, (match, p1) => {
+                    try {
+                        const absoluteUrl = new URL(p1, url).toString();
+                        const signed = signURL(absoluteUrl, PRIVATE_KEY, UID, VALID_DURATION);
+                        return `URI="${signed}"`;
+                    } catch (e) {
+                        return match;
+                    }
+                });
+            }
 
             try {
-                // 将 TS 相对路径转换为绝对路径
+                // 将切片相对路径转换为绝对路径
                 const segmentUrl = new URL(trimmed, url).toString();
-                // 对每个 TS 切片进行鉴权提取
+                // 对每个切片进行鉴权提取
                 return signURL(segmentUrl, PRIVATE_KEY, UID, VALID_DURATION);
             } catch (e) {
                 return line;

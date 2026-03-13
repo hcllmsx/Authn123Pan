@@ -116,7 +116,20 @@ export async function handler(event, context) {
 
         const signedLines = lines.map(line => {
             const trimmed = line.trim();
-            if (!trimmed || trimmed.startsWith('#')) return line;
+            if (!trimmed) return line;
+
+            // Handle URIs inside tags (e.g. #EXT-X-MAP:URI="init.mp4")
+            if (trimmed.startsWith('#')) {
+                return line.replace(/URI="([^"]+)"/g, (match, p1) => {
+                    try {
+                        const absoluteUrl = new URL(p1, url).toString();
+                        const signed = signURL(absoluteUrl, PRIVATE_KEY, UID, VALID_DURATION);
+                        return `URI="${signed}"`;
+                    } catch (e) {
+                        return match;
+                    }
+                });
+            }
 
             try {
                 const segmentUrl = new URL(trimmed, url).toString();
