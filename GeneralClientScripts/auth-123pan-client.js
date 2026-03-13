@@ -74,7 +74,7 @@ function getM3u8ProxyUrl(originalUrl, authUrl) {
             if (this.config.cacheEnabled) {
                 const cached = this.cache.get(originalUrl);
                 if (cached && Date.now() < cached.expiresAt) {
-                    console.log('[Pan123Auth] Using cached URL');
+                    console.debug('[Pan123Auth] Using cached URL');
                     return cached.signedUrl;
                 }
             }
@@ -123,7 +123,8 @@ function getM3u8ProxyUrl(originalUrl, authUrl) {
             const baseUrl = originalM3u8Url.substring(0, lastSlash + 1);
             const authUrl = this.config.authUrl;
 
-            videojs.Vhs.xhr.beforeRequest = function (options) {
+            const hookName = videojs.Vhs.xhr.onRequest ? 'onRequest' : 'beforeRequest';
+            videojs.Vhs.xhr[hookName] = function (options) {
                 const url = options.uri;
                 if (url.includes('auth123pan-vercel.oooq.cc') && 
                     !url.includes('m3u8Proxy') && 
@@ -131,7 +132,7 @@ function getM3u8ProxyUrl(originalUrl, authUrl) {
                     
                     const fileName = url.substring(url.lastIndexOf('/') + 1);
                     options.uri = getM3u8ProxyUrl(baseUrl + fileName, authUrl);
-                    console.log('[Pan123Auth] Fixed relative segment URL:', options.uri);
+                    console.debug('[Pan123Auth] Fixed relative segment URL:', options.uri);
                 }
                 return options;
             };
